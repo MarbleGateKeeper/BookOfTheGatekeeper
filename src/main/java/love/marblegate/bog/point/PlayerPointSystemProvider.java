@@ -1,4 +1,4 @@
-package love.marblegate.bog.cooldown;
+package love.marblegate.bog.point;
 
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -9,9 +9,9 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-class PlayerCoolDownProvider implements ICapabilitySerializable<CompoundTag> {
-    private final CoolDownCapability capability = new CoolDownCapability();
-    private final LazyOptional<CoolDownCapability> optional = LazyOptional.of(() -> capability);
+class PlayerPointSystemProvider implements ICapabilitySerializable<CompoundTag> {
+    private final PointSystemCapability capability = new PointSystemCapability();
+    private final LazyOptional<PointSystemCapability> optional = LazyOptional.of(() -> capability);
 
     public void invalidate() {
         optional.invalidate();
@@ -26,23 +26,23 @@ class PlayerCoolDownProvider implements ICapabilitySerializable<CompoundTag> {
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap) {
-        if (cap == CooldownInstanceHolder.INSTANCE) return optional.cast();
+        if (cap == PointSystemInstanceHolder.INSTANCE) return optional.cast();
         else return LazyOptional.empty();
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag compoundNBT = new CompoundTag();
-        if (CooldownInstanceHolder.INSTANCE != null) {
-            compoundNBT.put("cooldown", capability.serializeNBT());
+        if (PointSystemInstanceHolder.INSTANCE != null) {
+            compoundNBT.put("point_system",capability.serializeNBT());
         }
         return compoundNBT;
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        if (CooldownInstanceHolder.INSTANCE != null) {
-            capability.deserializeNBT(nbt.getCompound("cooldown"));
+        if (PointSystemInstanceHolder.INSTANCE != null) {
+            capability.deserializeNBT(nbt.getCompound("point_system"));
         }
     }
 }

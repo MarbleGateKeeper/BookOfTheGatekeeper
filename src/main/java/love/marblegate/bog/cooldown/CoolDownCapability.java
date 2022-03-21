@@ -16,68 +16,6 @@ class CoolDownCapability {
         tickCount = 0;
     }
 
-    @SuppressWarnings("all")
-    public void receiveData(List<Object> data){
-        coolDownMap = (Map<String, CoolDownInstance>) data.get(0);
-        holdMap = (Map<String, Integer>) data.get(1);
-        tickCount = (Integer) data.get(2);
-    }
-
-    public CompoundTag serializeNBT(){
-        CompoundTag ret = new CompoundTag();
-        CompoundTag cMapNBT = new CompoundTag();
-        CompoundTag hMapNBT = new CompoundTag();
-        for (Map.Entry<String,CoolDownInstance> entry:coolDownMap.entrySet()) {
-            CompoundTag cInstanceNBT = new CompoundTag();
-            cInstanceNBT.putInt("start_time",entry.getValue().startTime);
-            cInstanceNBT.putInt("end_time",entry.getValue().endTime);
-            cMapNBT.put(entry.getKey(),cInstanceNBT);
-        }
-        ret.put("c_map",cMapNBT);
-        for (Map.Entry<String,Integer> entry:holdMap.entrySet()) {
-            hMapNBT.putInt(entry.getKey(),entry.getValue());
-        }
-        ret.put("h_map",hMapNBT);
-        ret.putInt("tick_count",tickCount);
-        return ret;
-    }
-
-
-    public void deserializeNBT(CompoundTag nbt){
-        CompoundTag cMapNBT = nbt.getCompound("c_map");
-        coolDownMap = new HashMap<>();
-        Set<String> typeSet = cMapNBT.getAllKeys();
-        for(String type:typeSet){
-            CompoundTag cInstanceNBT = cMapNBT.getCompound(type);
-            coolDownMap.put(type,new CoolDownInstance(cInstanceNBT.getInt("start_time"),cInstanceNBT.getInt("end_time")));
-        }
-
-        CompoundTag hMapNBT = nbt.getCompound("h_map");
-        holdMap = new HashMap<>();
-        typeSet = hMapNBT.getAllKeys();
-        for(String type:typeSet){
-            holdMap.put(type,hMapNBT.getInt(type));
-        }
-
-        tickCount = nbt.getInt("tick_count");
-    }
-
-    public List<Object> offerData(){
-        List<Object> ret = new ArrayList<>();
-        ret.add(coolDownMap);
-        ret.add(holdMap);
-        ret.add(tickCount);
-        return ret;
-    }
-
-    public int getCoolDown(String type) {
-        if(coolDownMap.containsKey(type)){
-            return coolDownMap.get(type).endTime - tickCount;
-        }else{
-            return 0;
-        }
-    }
-
     public boolean isReady(String type) {
         return !coolDownMap.containsKey(type);
     }
@@ -166,6 +104,68 @@ class CoolDownCapability {
 
         void holdInTick(){
             endTime++;
+        }
+    }
+
+    @SuppressWarnings("all")
+    public void receiveData(List<Object> data){
+        coolDownMap = (Map<String, CoolDownInstance>) data.get(0);
+        holdMap = (Map<String, Integer>) data.get(1);
+        tickCount = (Integer) data.get(2);
+    }
+
+    public CompoundTag serializeNBT(){
+        CompoundTag ret = new CompoundTag();
+        CompoundTag cMapNBT = new CompoundTag();
+        CompoundTag hMapNBT = new CompoundTag();
+        for (Map.Entry<String,CoolDownInstance> entry:coolDownMap.entrySet()) {
+            CompoundTag cInstanceNBT = new CompoundTag();
+            cInstanceNBT.putInt("start_time",entry.getValue().startTime);
+            cInstanceNBT.putInt("end_time",entry.getValue().endTime);
+            cMapNBT.put(entry.getKey(),cInstanceNBT);
+        }
+        ret.put("c_map",cMapNBT);
+        for (Map.Entry<String,Integer> entry:holdMap.entrySet()) {
+            hMapNBT.putInt(entry.getKey(),entry.getValue());
+        }
+        ret.put("h_map",hMapNBT);
+        ret.putInt("tick_count",tickCount);
+        return ret;
+    }
+
+
+    public void deserializeNBT(CompoundTag nbt){
+        CompoundTag cMapNBT = nbt.getCompound("c_map");
+        coolDownMap = new HashMap<>();
+        Set<String> typeSet = cMapNBT.getAllKeys();
+        for(String type:typeSet){
+            CompoundTag cInstanceNBT = cMapNBT.getCompound(type);
+            coolDownMap.put(type,new CoolDownInstance(cInstanceNBT.getInt("start_time"),cInstanceNBT.getInt("end_time")));
+        }
+
+        CompoundTag hMapNBT = nbt.getCompound("h_map");
+        holdMap = new HashMap<>();
+        typeSet = hMapNBT.getAllKeys();
+        for(String type:typeSet){
+            holdMap.put(type,hMapNBT.getInt(type));
+        }
+
+        tickCount = nbt.getInt("tick_count");
+    }
+
+    public List<Object> offerData(){
+        List<Object> ret = new ArrayList<>();
+        ret.add(coolDownMap);
+        ret.add(holdMap);
+        ret.add(tickCount);
+        return ret;
+    }
+
+    public int getCoolDown(String type) {
+        if(coolDownMap.containsKey(type)){
+            return coolDownMap.get(type).endTime - tickCount;
+        }else{
+            return 0;
         }
     }
 }
