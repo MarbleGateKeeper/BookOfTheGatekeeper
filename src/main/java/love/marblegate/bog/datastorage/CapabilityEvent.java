@@ -11,7 +11,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber
 public class CapabilityEvent {
     @SubscribeEvent
     public static void registerCaps(RegisterCapabilitiesEvent event) {
@@ -20,7 +20,7 @@ public class CapabilityEvent {
     }
 
     @SubscribeEvent
-    public static void tick(TickEvent.PlayerTickEvent event) {
+    public static void tickCoolDown(TickEvent.PlayerTickEvent event) {
         if (!event.player.level.isClientSide()) {
             if (event.phase == TickEvent.Phase.START) {
                 LazyOptional<CoolDownCapability> coolDownCap = event.player.getCapability(InstanceHolder.COOLDOWN_SYSTEM);
@@ -43,9 +43,9 @@ public class CapabilityEvent {
     //Manager Cooldown Transferring Event
     @SubscribeEvent
     public static void migrateCapDataWhenPlayerRespawn(PlayerEvent.Clone event) {
-        if (!event.getPlayer().level.isClientSide()) {
+        if (!event.getEntity().level.isClientSide()) {
             LazyOptional<PointSystemCapability> oldPointCap = event.getOriginal().getCapability(InstanceHolder.POINT_SYSTEM);
-            LazyOptional<PointSystemCapability> newPointCap = event.getPlayer().getCapability(InstanceHolder.POINT_SYSTEM);
+            LazyOptional<PointSystemCapability> newPointCap = event.getEntity().getCapability(InstanceHolder.POINT_SYSTEM);
             if (event.isWasDeath()) {
                 if (oldPointCap.isPresent() && newPointCap.isPresent()) {
                     newPointCap.ifPresent((newCap) -> oldPointCap.ifPresent((oldCap) -> {
@@ -60,7 +60,7 @@ public class CapabilityEvent {
                 }
             }
             LazyOptional<CoolDownCapability> oldCoolDown = event.getOriginal().getCapability(InstanceHolder.COOLDOWN_SYSTEM);
-            LazyOptional<CoolDownCapability> newCoolDown = event.getPlayer().getCapability(InstanceHolder.COOLDOWN_SYSTEM);
+            LazyOptional<CoolDownCapability> newCoolDown = event.getEntity().getCapability(InstanceHolder.COOLDOWN_SYSTEM);
             if (oldCoolDown.isPresent() && newCoolDown.isPresent()) {
                 newCoolDown.ifPresent((newCap) -> oldCoolDown.ifPresent((oldCap) -> {
                     newCap.receiveData(oldCap.offerData());
